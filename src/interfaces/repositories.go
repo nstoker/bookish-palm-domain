@@ -5,7 +5,6 @@ import (
 
 	"github.com/nstoker/bookish-palm-domain/src/domain"
 	"github.com/nstoker/bookish-palm-domain/src/usecases"
-	"github.com/sirupsen/logrus"
 )
 
 // DbHandler interface
@@ -62,24 +61,16 @@ func (repo *DbUserRepo) Store(user usecases.User) {
 
 // FindByID finds a user by id
 func (repo *DbUserRepo) FindByID(id int) usecases.User {
-	logrus.Infof("DbUserRepo.FindByID(%d)", id)
 	sql := fmt.Sprintf(
 		`SELECT is_admin, customer_id
 		FROM users
 		WHERE id='%d' LIMIT 1`,
 		id)
-	logrus.Infof("sql: %s", sql)
-	logrus.Infof("repo %+v", repo)
-	logrus.Infof(" --> dbHandler %+v", repo.dbHandler)
-	logrus.Infof("    --> query %+v", repo.dbHandler.Query)
 	row := repo.dbHandler.Query(sql)
-	logrus.Infof("row %+v", row)
 	var isAdmin string
 	var customerID int
 	row.Next()
-	logrus.Infof("row.Next()")
 	row.Scan(&isAdmin, &customerID)
-	logrus.Infof("row.Scan admin: %d customer %d", isAdmin, customerID)
 	customerRepo := NewDbCustomerRepo(repo.dbHandlers)
 	u := usecases.User{ID: id, Customer: customerRepo.FindByID(customerID)}
 	u.IsAdmin = isAdmin == "yes"
