@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/nstoker/bookish-palm-domain/src/infrastructure"
 	"github.com/nstoker/bookish-palm-domain/src/interfaces"
@@ -9,8 +10,21 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+
+	return !info.IsDir()
+}
+
 func main() {
-	dbHandler := infrastructure.NewSqliteHandler("./production.sqlite")
+	databaseName := "./production.sqlite"
+	if !fileExists(databaseName) {
+		logrus.Fatalf("Can't find '%s'.", databaseName)
+	}
+	dbHandler := infrastructure.NewSqliteHandler(databaseName)
 
 	handlers := make(map[string]interfaces.DbHandler)
 	handlers["DbUserRepo"] = dbHandler
@@ -30,6 +44,6 @@ func main() {
 		webserviceHandler.ShowOrder(res, req)
 	})
 
-	logrus.Infof("Starting up")
+	logrus.Infof("Starting up, database: %s", databaseName)
 	http.ListenAndServe(":8080", nil)
 }
