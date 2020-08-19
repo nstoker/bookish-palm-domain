@@ -42,7 +42,7 @@ type DbItemRepo DbRepo
 func NewDbUserRepo(dbHandlers map[string]DbHandler) *DbUserRepo {
 	dbUserRepo := new(DbUserRepo)
 	dbUserRepo.dbHandlers = dbHandlers
-	dbUserRepo.dbHandler = dbHandlers["dbUserRepo"]
+	dbUserRepo.dbHandler = dbHandlers["DbUserRepo"]
 	return dbUserRepo
 }
 
@@ -108,7 +108,7 @@ func (repo *DbCustomerRepo) Store(customer domain.Customer) {
 func (repo *DbCustomerRepo) FindByID(id int) domain.Customer {
 	row := repo.dbHandler.Query(fmt.Sprintf(`
 	SELECT name
-	FROM custmers
+	FROM customers
 	WHERE id = '%d' LIMIT 1`,
 		id))
 
